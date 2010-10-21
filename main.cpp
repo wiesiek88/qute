@@ -1,15 +1,11 @@
 #include <QApplication>
-#include <QWidget>
+
+#include "imageviewer.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-
-    QWidget window;
-
-    window.resize(250, 150);
-    window.setWindowTitle("Simple example");
-    window.show();
-
+    ImageViewer imageViewer;
+    imageViewer.show();
     return app.exec();
 }
