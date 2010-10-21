@@ -6,6 +6,7 @@
 ImageViewer::ImageViewer()
 {
     imageLabel = new QLabel;
+    //imageLabel->
     imageLabel->setBackgroundRole(QPalette::Base);
     imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     imageLabel->setScaledContents(true);
@@ -27,7 +28,7 @@ void ImageViewer::open()
     QString fileName = QFileDialog::getOpenFileName(this,
                                     tr("Open File"), QDir::currentPath());
     if (!fileName.isEmpty()) {
-        QImage image(fileName);
+        image.load(fileName);
         if (image.isNull()) {
             QMessageBox::information(this, tr("Image Viewer"),
                                     tr("Cannot load %1.").arg(fileName));
@@ -46,17 +47,7 @@ void ImageViewer::open()
         
         QImage test = image.mirrored();
         test.setAlphaChannel(mask);*/
-        
-        for (int x = 0; x < image.width(); x++)
-        {
-            for (int y = 0; y < image.height(); y++) {
-                QRgb value;
-                int newValue;
-                value = image.pixel(QPoint(x,y));
-                newValue = (qRed(value) + qGreen(value) + qBlue(value)) / 3;
-                image.setPixel(x,y,qRgb(newValue, newValue, newValue));
-            }
-        }
+
         // --------------
         
         imageLabel->setPixmap(QPixmap::fromImage(image));
@@ -112,21 +103,40 @@ void ImageViewer::fitToWindow()
     updateActions();
 }
 
+void ImageViewer::greyScale()
+{
+    for (int x = 0; x < image.width(); x++)
+    {
+        for (int y = 0; y < image.height(); y++) {
+            QRgb value;
+            int newValue;
+            value = image.pixel(QPoint(x,y));
+            newValue = (qRed(value) + qGreen(value) + qBlue(value)) / 3;
+            image.setPixel(x,y,qRgb(newValue, newValue, newValue));
+        }
+    }
+
+    imageLabel->setPixmap(QPixmap::fromImage(image));
+}
+
+void ImageViewer::negative()
+{
+    for (int x = 0; x < image.width(); x++)
+    {
+        for (int y = 0; y < image.height(); y++) {
+            QRgb value;
+            value = image.pixel(QPoint(x,y));
+            image.setPixel(x,y,qRgb(255 - qRed(value), 255 - qGreen(value), 255 - qBlue(value)));
+        }
+    }
+
+    imageLabel->setPixmap(QPixmap::fromImage(image));
+}
+
 void ImageViewer::about()
 {
-    QMessageBox::about(this, tr("About Image Viewer"),
-            tr("<p>The <b>Image Viewer</b> example shows how to combine QLabel "
-            "and QScrollArea to display an image. QLabel is typically used "
-            "for displaying a text, but it can also display an image. "
-            "QScrollArea provides a scrolling view around another widget. "
-            "If the child widget exceeds the size of the frame, QScrollArea "
-            "automatically provides scroll bars. </p><p>The example "
-            "demonstrates how QLabel's ability to scale its contents "
-            "(QLabel::scaledContents), and QScrollArea's ability to "
-            "automatically resize its contents "
-            "(QScrollArea::widgetResizable), can be used to implement "
-            "zooming and scaling features. </p><p>In addition the example "
-            "shows how to use QPainter to print an image.</p>"));
+    QMessageBox::about(this, tr("About QuTe"),
+            tr("<b>QuTe 6.66 alpha-0</b>"));
 }
 
 void ImageViewer::createActions()
@@ -165,6 +175,14 @@ void ImageViewer::createActions()
     fitToWindowAct->setShortcut(tr("Ctrl+F"));
     connect(fitToWindowAct, SIGNAL(triggered()), this, SLOT(fitToWindow()));
 
+    greyScaleAct = new QAction(tr("&Greyscale"), this);
+    greyScaleAct->setEnabled(false);
+    connect(greyScaleAct, SIGNAL(triggered()), this, SLOT(greyScale()));
+
+    negativeAct = new QAction(tr("&Negative"), this);
+    negativeAct->setEnabled(false);
+    connect(negativeAct, SIGNAL(triggered()), this, SLOT(negative()));
+
     aboutAct = new QAction(tr("&About"), this);
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 
@@ -187,12 +205,17 @@ void ImageViewer::createMenus()
     viewMenu->addSeparator();
     viewMenu->addAction(fitToWindowAct);
 
+    filtersMenu = new QMenu(tr("&Filters"), this);
+    filtersMenu->addAction(greyScaleAct);
+    filtersMenu->addAction(negativeAct);
+
     helpMenu = new QMenu(tr("&Help"), this);
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
 
     menuBar()->addMenu(fileMenu);
     menuBar()->addMenu(viewMenu);
+    menuBar()->addMenu(filtersMenu);
     menuBar()->addMenu(helpMenu);
 }
 
@@ -201,6 +224,8 @@ void ImageViewer::updateActions()
     zoomInAct->setEnabled(!fitToWindowAct->isChecked());
     zoomOutAct->setEnabled(!fitToWindowAct->isChecked());
     normalSizeAct->setEnabled(!fitToWindowAct->isChecked());
+    greyScaleAct->setEnabled(true);
+    negativeAct->setEnabled(true);
 }
 
 void ImageViewer::scaleImage(double factor)

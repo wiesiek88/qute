@@ -24,9 +24,15 @@ private slots:
     void zoomOut();
     void normalSize();
     void fitToWindow();
+
+    void greyScale();
+    void negative();
+
     void about();
 
 private:
+    QImage image;
+
     void createActions();
     void createMenus();
     void updateActions();
@@ -41,15 +47,22 @@ private:
     QAction *openAct;
     QAction *printAct;
     QAction *exitAct;
+
     QAction *zoomInAct;
     QAction *zoomOutAct;
     QAction *normalSizeAct;
     QAction *fitToWindowAct;
+
+    QAction *greyScaleAct;
+    QAction *negativeAct;
+    QAction *gradientAct;
+
     QAction *aboutAct;
     QAction *aboutQtAct;
 
     QMenu *fileMenu;
     QMenu *viewMenu;
+    QMenu *filtersMenu;
     QMenu *helpMenu;
 };
 
