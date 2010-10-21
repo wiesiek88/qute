@@ -62,21 +62,6 @@ void ImageViewer::open()
     }
 }
 
-void ImageViewer::print()
-{
-    Q_ASSERT(imageLabel->pixmap());
-    QPrintDialog dialog(&printer, this);
-    if (dialog.exec()) {
-        QPainter painter(&printer);
-        QRect rect = painter.viewport();
-        QSize size = imageLabel->pixmap()->size();
-        size.scale(rect.size(), Qt::KeepAspectRatio);
-        painter.setViewport(rect.x(), rect.y(), size.width(), size.height());
-        painter.setWindow(imageLabel->pixmap()->rect());
-        painter.drawPixmap(0, 0, *imageLabel->pixmap());
-    }
-}
-
 void ImageViewer::zoomIn()
 {
     scaleImage(1.25);
@@ -136,7 +121,7 @@ void ImageViewer::negative()
 void ImageViewer::about()
 {
     QMessageBox::about(this, tr("About QuTe"),
-            tr("<b>QuTe 6.66 alpha-0</b>"));
+            tr("<b>QuTe 6.66 alpha-0</b><br/>Version: 0.1.1 21-10-2010"));
 }
 
 void ImageViewer::createActions()
@@ -144,11 +129,6 @@ void ImageViewer::createActions()
     openAct = new QAction(tr("&Open..."), this);
     openAct->setShortcut(tr("Ctrl+O"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
-
-    printAct = new QAction(tr("&Print..."), this);
-    printAct->setShortcut(tr("Ctrl+P"));
-    printAct->setEnabled(false);
-    connect(printAct, SIGNAL(triggered()), this, SLOT(print()));
 
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
@@ -194,7 +174,6 @@ void ImageViewer::createMenus()
 {
     fileMenu = new QMenu(tr("&File"), this);
     fileMenu->addAction(openAct);
-    fileMenu->addAction(printAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
